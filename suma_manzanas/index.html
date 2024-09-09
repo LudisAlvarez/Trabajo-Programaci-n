@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>suma</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-image: url('./img/mar.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      height: 100vh; 
+    }
+
+    .decorative-text {
+      font-family: 'Lobster', cursive;
+      text-align: center;
+      font-size: 48px;
+      color: #13061d;
+    }
+
+    .cesta {
+      background-image: url('./img/acuario.png');
+      background-size: cover;
+      width: 350px;
+      height: 330px;
+      padding-top: 75px;
+      padding-left: 40px;
+    }
+
+    .cesta2 {
+      width: 200px;
+      height: 150px;
+      margin-left: 40px;
+    }
+
+    .suma {
+      display: flex;
+      align-items: center;
+    }
+
+    .counter {
+      font-size: 24px;
+      font-weight: bold;
+      color: #12051b;
+    }
+
+    .message {
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .correct {
+      color: green;
+    }
+
+    .incorrect {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <div class="decorative-text">
+    PRUEBA DE SUMA
+  </div>
+
+  <div id="app" class="container">
+    No. 1 : <input @input="validar('a')" type="number" v-model.number="n1"></input>
+    No. 2 : <input @input="validar('b')" type="number" v-model.number="n2"></input>
+      
+    <div class="row">
+      <div class="col-4">
+        <div class="cesta">
+          <div class="cesta2">
+            <img v-for="data in n1" :key="data" src="./img/pez.png" width="50px">
+          </div>
+        </div>
+      </div>
+      <div class="col-2 suma">
+        <img src="./img/suma.png" width="100px" height="100px">
+      </div>
+      <div class="col-4">
+        <div class="cesta">
+          <div class="cesta2">
+            <img v-for="data in n2" :key="data" src="./img/pez.png" width="50px">
+          </div>
+        </div>
+      </div>
+      <div class="col-1 suma">
+        <img src="./img/igual.png" width="100px" height="100px">
+      </div>
+      <div class="col-1 suma">
+        <input type="number" v-model.number="respuesta">
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <button @click="resultado()" class="btn btn-primary btn-lg">VALIDAR</button>
+    </div>
+
+    <div class="row">
+      <div class="counter">
+        Intentos Correctos: {{ correctAttempts }}
+      </div>
+      <div class="counter">
+        Intentos Incorrectos: {{ incorrectAttempts }}
+      </div>
+    </div>
+
+    <div v-if="feedbackMessage" class="message" :class="{'correct': isCorrect, 'incorrect': !isCorrect}">
+      {{ feedbackMessage }}
+    </div>
+
+    <div class="text-center mb-3">
+      <button @click="playAudio" class="btn btn-secondary">Reproducir Audio en Loop</button>
+      <button @click="pauseAudio" class="btn btn-warning">Pausar Audio</button>
+    </div>
+
+  </div>
+
+  <audio id="background-audio" loop>
+    <source src="instrumental.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          n1: 0,
+          n2: 0,
+          respuesta: 0,
+          correctAttempts: 0,
+          incorrectAttempts: 0,
+          feedbackMessage: '',
+          isCorrect: false
+        }
+      },
+      methods: {
+        validar(v) {
+          if (v === 'a') {
+            if (this.n1 > 20) this.n1 = 20
+          } else {
+            if (this.n2 > 20) this.n2 = 20
+          }
+        },
+        resultado() {
+          if (this.n1 === 0 || this.n2 === 0) {
+            alert('Por favor ingresa números válidos en ambos campos.');
+            return;
+          }
+
+          const sumaCorrecta = this.n1 + this.n2;
+          if (sumaCorrecta === this.respuesta) {
+            this.correctAttempts += 1;
+            this.feedbackMessage = '¡Correcto!';
+            this.isCorrect = true;
+          } else {
+            this.incorrectAttempts += 1;
+            this.feedbackMessage = `Incorrecto. El resultado correcto era ${sumaCorrecta}.`;
+            this.isCorrect = false;
+          }
+          
+          setTimeout(() => {
+            this.n1 = 0;
+            this.n2 = 0;
+            this.respuesta = 0;
+            this.feedbackMessage = ''; 
+          }, 2000);
+        },
+        playAudio() {
+          const audio = document.getElementById('background-audio');
+          console.log('Botón presionado, reproduciendo audio...');
+          audio.play().then(() => {
+            console.log('Audio está reproduciendo.');
+          }).catch(error => {
+            console.error('Error al reproducir el audio:', error);
+          });
+        },
+        pauseAudio() {
+          const audio = document.getElementById('background-audio');
+          audio.pause();
+          console.log('Audio pausado.');
+        }
+      }
+    }).mount('#app')
+  </script>
+
+</body>
+</html>
